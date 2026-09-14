@@ -1,0 +1,11 @@
+{
+  "name": "nearwork-api",
+  "version": "1.0.0",
+  "private": true,
+  "main": "api/index.js",
+  "dependencies": {
+    "@libsql/client": "^0.17.4",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

@@ -1,0 +1,528 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ----------------------------------------------------
+// ENUMS
+// ----------------------------------------------------
+
+enum UserRole {
+  CUSTOMER
+  WORKER
+  ADMIN
+}
+
+enum WorkerStatus {
+  ONLINE
+  OFFLINE
+  BUSY
+  ON_JOB
+}
+
+enum WorkerVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+enum BookingStatus {
+  CREATED
+  PAYMENT_PENDING
+  PAID
+  SEARCHING_WORKER
+  WORKER_ASSIGNED
+  WORKER_ACCEPTED
+  WORKER_EN_ROUTE
+  WORKER_ARRIVED
+  SERVICE_STARTED
+  SERVICE_COMPLETED
+  PAYMENT_SETTLED
+  COMPLETED
+  CUSTOMER_CANCELLED
+  WORKER_CANCELLED
+  ADMIN_CANCELLED
+}
+
+enum PaymentStatus {
+  PAYMENT_PENDING
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  REFUND_PENDING
+  REFUNDED
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+// ----------------------------------------------------
+// MODELS
+// ----------------------------------------------------
+
+model User {
+  id           String        @id @default(uuid()) @db.Uuid
+  email        String        @unique
+  phone        String        @unique
+  name         String
+  passwordHash String
+  role         UserRole      @default(CUSTOMER)
+  avatarUrl    String?
+  isActive     Boolean       @default(true)
+  refreshToken String?
+  createdAt    DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime      @updatedAt @db.Timestamptz(6)
+
+  workerProfile  WorkerProfile?
+  adminProfile   AdminProfile?
+  addresses      Address[]
+  bookings       Booking[]       @relation("CustomerBookings")
+  payments       Payment[]
+  reviews        Review[]        @relation("CustomerReviews")
+  notifications  Notification[]
+  tickets        SupportTicket[]
+  chats          Chat[]          @relation("CustomerChats")
+  chatMessages   ChatMessage[]   @relation("SenderMessages")
+
+  @@index([email])
+  @@index([phone])
+  @@index([role])
+}
+
+model WorkerProfile {
+  id                 String                   @id @default(uuid()) @db.Uuid
+  userId             String                   @unique @db.Uuid
+  user               User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status             WorkerStatus             @default(OFFLINE)
+  verificationStatus WorkerVerificationStatus @default(PENDING)
+  experienceYears    Int                      @default(1)
+  workingRadiusKm    Float                    @default(15.0)
+  currentLat         Float?
+  currentLng         Float?
+  address            String?
+  idProofType        String?
+  idProofUrl         String?
+  bankAccountNumber  String?
+  bankIfsc           String?
+  totalJobsCompleted Int                      @default(0)
+  averageRating      Float                    @default(5.0)
+  totalReviews       Int                      @default(0)
+  availableBalance   Decimal                  @default(0.00) @db.Decimal(10, 2)
+  pendingBalance     Decimal                  @default(0.00) @db.Decimal(10, 2)
+  totalWithdrawn     Decimal                  @default(0.00) @db.Decimal(10, 2)
+  createdAt          DateTime                 @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime                 @updatedAt @db.Timestamptz(6)
+
+  skills             WorkerSkill[]
+  availability       WorkerAvailability[]
+  bookings           Booking[]                @relation("WorkerBookings")
+  locations          WorkerLocation[]
+  earnings           Earning[]
+  payouts            Payout[]
+  reviews            Review[]                 @relation("WorkerReviews")
+  chats              Chat[]                   @relation("WorkerChats")
+
+  @@index([status])
+  @@index([verificationStatus])
+  @@index([currentLat, currentLng])
+}
+
+model AdminProfile {
+  id          String     @id @default(uuid()) @db.Uuid
+  userId      String     @unique @db.Uuid
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department  String     @default("Operations")
+  permissions String     @default("ALL")
+  createdAt   DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime   @updatedAt @db.Timestamptz(6)
+  auditLogs   AuditLog[]
+}
+
+model ServiceCategory {
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String        @unique
+  slug        String        @unique
+  description String?
+  icon        String?
+  imageUrl    String?
+  isActive    Boolean       @default(true)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime      @updatedAt @db.Timestamptz(6)
+
+  services     Service[]
+  workerSkills WorkerSkill[]
+
+  @@index([isActive, sortOrder])
+}
+
+model Service {
+  id              String          @id @default(uuid()) @db.Uuid
+  categoryId      String          @db.Uuid
+  category        ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name            String
+  slug            String          @unique
+  description     String
+  basePrice       Decimal         @db.Decimal(10, 2)
+  durationMinutes Int             @default(60)
+  inclusions      Json            @default("[]")
+  icon            String?
+  imageUrl        String?
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime        @updatedAt @db.Timestamptz(6)
+
+  bookings        Booking[]
+
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+model Address {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label       String
+  addressLine String
+  landmark    String?
+  city        String
+  state       String
+  pincode     String
+  latitude    Float
+  longitude   Float
+  isDefault   Boolean   @default(false)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+
+  bookings    Booking[]
+
+  @@index([userId])
+  @@index([isDefault])
+}
+
+model Booking {
+  id                  String               @id @default(uuid()) @db.Uuid
+  bookingNumber       String               @unique
+  customerId          String               @db.Uuid
+  customer            User                 @relation("CustomerBookings", fields: [customerId], references: [id])
+  workerId            String?              @db.Uuid
+  worker              WorkerProfile?       @relation("WorkerBookings", fields: [workerId], references: [id])
+  serviceId           String               @db.Uuid
+  service             Service              @relation(fields: [serviceId], references: [id])
+  addressId           String               @db.Uuid
+  address             Address              @relation(fields: [addressId], references: [id])
+  status              BookingStatus        @default(CREATED)
+  scheduledDate       String               // YYYY-MM-DD
+  scheduledTimeSlot   String               // e.g. "10:00 AM"
+  basePrice           Decimal              @db.Decimal(10, 2)
+  visitCharge         Decimal              @default(50.00) @db.Decimal(10, 2)
+  taxAmount           Decimal              @default(0.00) @db.Decimal(10, 2)
+  discountAmount      Decimal              @default(0.00) @db.Decimal(10, 2)
+  extraChargeAmount   Decimal              @default(0.00) @db.Decimal(10, 2)
+  extraChargeReason   String?
+  extraChargeApproved Boolean?
+  totalAmount         Decimal              @db.Decimal(10, 2)
+  otp                 String
+  instructions        String?
+  problemPhotos       Json?                @default("[]")
+  beforePhotos        Json?                @default("[]")
+  afterPhotos         Json?                @default("[]")
+  assignedAt          DateTime?            @db.Timestamptz(6)
+  acceptedAt          DateTime?            @db.Timestamptz(6)
+  enRouteAt           DateTime?            @db.Timestamptz(6)
+  arrivedAt           DateTime?            @db.Timestamptz(6)
+  startedAt           DateTime?            @db.Timestamptz(6)
+  completedAt         DateTime?            @db.Timestamptz(6)
+  cancelledAt         DateTime?            @db.Timestamptz(6)
+  cancellationReason  String?
+  cancelledByRole     UserRole?
+  createdAt           DateTime             @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime             @updatedAt @db.Timestamptz(6)
+
+  statusHistory       BookingStatusHistory[]
+  payment             Payment?
+  refund              Refund?
+  chat                Chat?
+  review              Review?
+  earning             Earning?
+  invoice             Invoice?
+  supportTickets      SupportTicket[]
+
+  @@index([customerId])
+  @@index([workerId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([scheduledDate])
+}
+
+model BookingStatusHistory {
+  id        String        @id @default(uuid()) @db.Uuid
+  bookingId String        @db.Uuid
+  booking   Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  status    BookingStatus
+  note      String?
+  changedBy String?
+  createdAt DateTime      @default(now()) @db.Timestamptz(6)
+
+  @@index([bookingId])
+}
+
+model Payment {
+  id                String        @id @default(uuid()) @db.Uuid
+  bookingId         String        @unique @db.Uuid
+  booking           Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  userId            String        @db.Uuid
+  user              User          @relation(fields: [userId], references: [id])
+  amount            Decimal       @db.Decimal(10, 2)
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PAYMENT_PENDING)
+  razorpayOrderId   String?       @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  paymentMethod     String?
+  createdAt         DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime      @updatedAt @db.Timestamptz(6)
+
+  refund            Refund?
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Refund {
+  id               String        @id @default(uuid()) @db.Uuid
+  paymentId        String        @unique @db.Uuid
+  payment          Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  bookingId        String        @unique @db.Uuid
+  booking          Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  amount           Decimal       @db.Decimal(10, 2)
+  status           PaymentStatus @default(REFUND_PENDING)
+  reason           String?
+  razorpayRefundId String?       @unique
+  createdAt        DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime      @updatedAt @db.Timestamptz(6)
+}
+
+model WorkerLocation {
+  id        String        @id @default(uuid()) @db.Uuid
+  workerId  String        @db.Uuid
+  worker    WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  latitude  Float
+  longitude Float
+  heading   Float?
+  speed     Float?
+  accuracy  Float?
+  updatedAt DateTime      @default(now()) @db.Timestamptz(6)
+
+  @@index([workerId])
+  @@index([updatedAt])
+}
+
+model WorkerAvailability {
+  id        String        @id @default(uuid()) @db.Uuid
+  workerId  String        @db.Uuid
+  worker    WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  isOff     Boolean       @default(false)
+
+  @@unique([workerId, dayOfWeek])
+}
+
+model WorkerSkill {
+  id              String          @id @default(uuid()) @db.Uuid
+  workerId        String          @db.Uuid
+  worker          WorkerProfile   @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  categoryId      String          @db.Uuid
+  category        ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  experienceYears Int             @default(1)
+
+  @@unique([workerId, categoryId])
+}
+
+model Review {
+  id         String        @id @default(uuid()) @db.Uuid
+  bookingId  String        @unique @db.Uuid
+  booking    Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customerId String        @db.Uuid
+  customer   User          @relation("CustomerReviews", fields: [customerId], references: [id])
+  workerId   String        @db.Uuid
+  worker     WorkerProfile @relation("WorkerReviews", fields: [workerId], references: [id])
+  rating     Int
+  review     String?
+  createdAt  DateTime      @default(now()) @db.Timestamptz(6)
+
+  @@index([workerId])
+  @@index([customerId])
+}
+
+model Notification {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  data      Json?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([userId, isRead])
+}
+
+model Chat {
+  id         String        @id @default(uuid()) @db.Uuid
+  bookingId  String        @unique @db.Uuid
+  booking    Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customerId String        @db.Uuid
+  customer   User          @relation("CustomerChats", fields: [customerId], references: [id])
+  workerId   String        @db.Uuid
+  worker     WorkerProfile @relation("WorkerChats", fields: [workerId], references: [id])
+  isActive   Boolean       @default(true)
+  createdAt  DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime      @updatedAt @db.Timestamptz(6)
+
+  messages   ChatMessage[]
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid()) @db.Uuid
+  chatId    String   @db.Uuid
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId  String   @db.Uuid
+  sender    User     @relation("SenderMessages", fields: [senderId], references: [id])
+  message   String
+  imageUrl  String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([chatId, createdAt])
+}
+
+model Earning {
+  id                 String        @id @default(uuid()) @db.Uuid
+  workerId           String        @db.Uuid
+  worker             WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  bookingId          String        @unique @db.Uuid
+  booking            Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  grossAmount        Decimal       @db.Decimal(10, 2)
+  platformCommission Decimal       @db.Decimal(10, 2)
+  netWorkerEarning   Decimal       @db.Decimal(10, 2)
+  status             String        @default("SETTLED")
+  createdAt          DateTime      @default(now()) @db.Timestamptz(6)
+
+  @@index([workerId])
+}
+
+model Payout {
+  id            String       @id @default(uuid()) @db.Uuid
+  payoutNumber  String       @unique
+  workerId      String       @db.Uuid
+  worker        WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  amount        Decimal      @db.Decimal(10, 2)
+  status        PayoutStatus @default(PENDING)
+  bankAccount   String
+  bankIfsc      String
+  referenceId   String?
+  processedAt   DateTime?    @db.Timestamptz(6)
+  createdAt     DateTime     @default(now()) @db.Timestamptz(6)
+
+  @@index([workerId])
+}
+
+model Coupon {
+  id             String       @id @default(uuid()) @db.Uuid
+  code           String       @unique
+  discountType   DiscountType @default(PERCENTAGE)
+  discountValue  Decimal      @db.Decimal(10, 2)
+  minOrderValue  Decimal      @default(0.00) @db.Decimal(10, 2)
+  maxDiscount    Decimal?     @db.Decimal(10, 2)
+  usageLimit     Int          @default(100)
+  usedCount      Int          @default(0)
+  expiresAt      DateTime?    @db.Timestamptz(6)
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now()) @db.Timestamptz(6)
+
+  @@index([code, isActive])
+}
+
+model Invoice {
+  id            String   @id @default(uuid()) @db.Uuid
+  invoiceNumber String   @unique
+  bookingId     String   @unique @db.Uuid
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customerId    String   @db.Uuid
+  workerId      String?  @db.Uuid
+  subtotal      Decimal  @db.Decimal(10, 2)
+  visitCharge   Decimal  @db.Decimal(10, 2)
+  tax           Decimal  @db.Decimal(10, 2)
+  discount      Decimal  @db.Decimal(10, 2)
+  extraCharges  Decimal  @default(0.00) @db.Decimal(10, 2)
+  total         Decimal  @db.Decimal(10, 2)
+  pdfUrl        String?
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model SupportTicket {
+  id           String         @id @default(uuid()) @db.Uuid
+  ticketNumber String         @unique
+  userId       String         @db.Uuid
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookingId    String?        @db.Uuid
+  booking      Booking?       @relation(fields: [bookingId], references: [id])
+  category     String
+  subject      String
+  description  String
+  status       TicketStatus   @default(OPEN)
+  priority     TicketPriority @default(MEDIUM)
+  adminNotes   String?
+  createdAt    DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime       @updatedAt @db.Timestamptz(6)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model AuditLog {
+  id        String       @id @default(uuid()) @db.Uuid
+  adminId   String       @db.Uuid
+  admin     AdminProfile @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  ipAddress String?
+  createdAt DateTime     @default(now()) @db.Timestamptz(6)
+
+  @@index([adminId])
+  @@index([entity, entityId])
+}
