@@ -14,9 +14,9 @@
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
-    "@nearwork/config": "*",
-    "@nearwork/types": "*",
-    "@nearwork/validation": "*",
+    "@nearwork/config": "file:./packages/config",
+    "@nearwork/types": "file:./packages/types",
+    "@nearwork/validation": "file:./packages/validation",
     "@prisma/adapter-libsql": "^7.9.1",
     "@prisma/client": "^6.4.1",
     "@types/multer": "^2.2.0",
