@@ -7,10 +7,11 @@ import { isWithinGeofence } from '../utils/haversine';
 import { getSocketIO } from '../config/socket';
 import { SOCKET_EVENTS } from '../../packages/types/src/index';
 import { MatchingService } from './matching.service';
+import { ProximityDispatchService } from './dispatch/proximityDispatchService';
 
 export class BookingService {
   /**
-   * Create a new booking in PAYMENT_PENDING state
+   * Create a new booking and trigger live real-time worker dispatch
    */
   static async createBooking(
     customerId: string,
@@ -22,6 +23,9 @@ export class BookingService {
       instructions?: string;
       problemPhotos?: string[];
       couponCode?: string;
+      paymentMethod?: string;
+      paymentMode?: string;
+      autoDispatch?: boolean;
     }
   ) {
     const [service, address, coupon] = await Promise.all([
@@ -82,6 +86,11 @@ export class BookingService {
     const otp = generateServiceOtp();
     const bookingNumber = generateBookingNumber();
 
+    const isCash = data.paymentMethod === 'CASH' || data.paymentMode === 'CASH';
+    const initialStatus = (data.autoDispatch !== false)
+      ? BookingStatus.SEARCHING_WORKER
+      : (isCash ? BookingStatus.SEARCHING_WORKER : BookingStatus.PAYMENT_PENDING);
+
     const booking = await prisma.$transaction(async (tx: any) => {
       const created = await tx.booking.create({
         data: {
@@ -89,7 +98,7 @@ export class BookingService {
           customerId,
           serviceId: service.id,
           addressId: address.id,
-          status: BookingStatus.PAYMENT_PENDING,
+          status: initialStatus,
           scheduledDate: data.scheduledDate,
           scheduledTimeSlot: data.scheduledTimeSlot,
           basePrice,
@@ -111,14 +120,21 @@ export class BookingService {
       await tx.bookingStatusHistory.create({
         data: {
           bookingId: created.id,
-          status: BookingStatus.PAYMENT_PENDING,
-          note: 'Booking created, awaiting payment authorization',
+          status: initialStatus,
+          note: initialStatus === BookingStatus.SEARCHING_WORKER
+            ? 'Booking created, searching for nearby technicians'
+            : 'Booking created, awaiting payment authorization',
           changedBy: customerId
         }
       });
 
       return created;
     });
+
+    // Asynchronously trigger real-time worker matching and proximity dispatch via Socket.IO
+    setTimeout(() => {
+      ProximityDispatchService.dispatchBooking(booking.id).catch(console.error);
+    }, 50);
 
     return booking;
   }
