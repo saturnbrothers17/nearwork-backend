@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { UserRole, WorkerStatus } from '@nearwork/types';
+import { UserRole, WorkerStatus } from '../../types/src/index';
 
 // Auth Schemas
 export const registerCustomerSchema = z.object({

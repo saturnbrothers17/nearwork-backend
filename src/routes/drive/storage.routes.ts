@@ -15,7 +15,7 @@ const upload = multer({
 /**
  * Direct file upload to Google Drive
  */
-router.post('/upload', upload.single('file'), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/upload', upload.single('file') as any, async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No file uploaded in form field "file"' });
