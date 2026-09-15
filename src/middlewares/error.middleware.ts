@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { HTTP_STATUS, ERROR_CODES } from '@nearwork/config';
+import { HTTP_STATUS, ERROR_CODES } from '../../packages/config/src/index';
 import { ENV } from '../config/environment';
 
 export interface AppError extends Error {

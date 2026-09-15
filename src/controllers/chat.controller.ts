@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { HTTP_STATUS } from '@nearwork/config';
+import { HTTP_STATUS } from '../../packages/config/src/index';
 import { ChatService } from '../services/chat.service';
 
 export class ChatController {

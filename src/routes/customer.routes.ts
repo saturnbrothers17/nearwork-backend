@@ -3,7 +3,7 @@ import { CustomerController } from '../controllers/customer.controller';
 import { authenticateJwt } from '../middlewares/auth.middleware';
 import { requireCustomer } from '../middlewares/role.middleware';
 import { validateRequest } from '../middlewares/validate.middleware';
-import { createAddressSchema, createReviewSchema } from '@nearwork/validation';
+import { createAddressSchema, createReviewSchema } from '../../packages/validation/src/index';
 
 const router = Router();
 

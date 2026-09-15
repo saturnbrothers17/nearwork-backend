@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { HTTP_STATUS } from '@nearwork/config';
+import { HTTP_STATUS } from '../../packages/config/src/index';
 import { prisma } from '../config/db';
-import { WorkerStatus, WorkerVerificationStatus, BookingStatus, PayoutStatus } from '@nearwork/types';
+import { WorkerStatus, WorkerVerificationStatus, BookingStatus, PayoutStatus } from '../../packages/types/src/index';
 import { MatchingService } from '../services/matching.service';
 
 export class AdminController {

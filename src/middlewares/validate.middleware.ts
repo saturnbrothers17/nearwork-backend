@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema, ZodError } from 'zod';
-import { HTTP_STATUS, ERROR_CODES } from '@nearwork/config';
+import { HTTP_STATUS, ERROR_CODES } from '../../packages/config/src/index';
 
 export const validateRequest = (schema: ZodSchema) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {

@@ -1,9 +1,9 @@
-import { WorkerStatus, WorkerVerificationStatus, BookingStatus } from '@nearwork/types';
-import { APP_CONFIG } from '@nearwork/config';
+import { WorkerStatus, WorkerVerificationStatus, BookingStatus } from '../../packages/types/src/index';
+import { APP_CONFIG } from '../../packages/config/src/index';
 import { prisma } from '../config/db';
 import { calculateDistanceKm } from '../utils/haversine';
 import { getSocketIO } from '../config/socket';
-import { SOCKET_EVENTS } from '@nearwork/types';
+import { SOCKET_EVENTS } from '../../packages/types/src/index';
 
 export interface ScoredWorker {
   workerId: string;

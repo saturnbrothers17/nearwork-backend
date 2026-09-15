@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { HTTP_STATUS, ERROR_CODES } from '@nearwork/config';
+import { HTTP_STATUS, ERROR_CODES } from '../../packages/config/src/index';
 import { prisma } from '../config/db';
-import { BookingStatus, WorkerStatus } from '@nearwork/types';
+import { BookingStatus, WorkerStatus } from '../../packages/types/src/index';
 import { EarningService } from '../services/earning.service';
 import { calculateDistanceKm } from '../utils/haversine';
 

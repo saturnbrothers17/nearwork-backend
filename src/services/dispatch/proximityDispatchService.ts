@@ -1,6 +1,6 @@
 import { calculateDistanceKm } from '../../utils/haversine';
 import { getSocketIO } from '../../config/socket';
-import { SOCKET_EVENTS } from '@nearwork/types';
+import { SOCKET_EVENTS } from '../../../packages/types/src/index';
 
 export interface DispatchWorkerCandidate {
   id: string;

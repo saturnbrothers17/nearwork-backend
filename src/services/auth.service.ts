@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
-import { UserRole, WorkerStatus, WorkerVerificationStatus } from '@nearwork/types';
-import { HTTP_STATUS, ERROR_CODES } from '@nearwork/config';
+import { UserRole, WorkerStatus, WorkerVerificationStatus } from '../../packages/types/src/index';
+import { HTTP_STATUS, ERROR_CODES } from '../../packages/config/src/index';
 import { prisma } from '../config/db';
 import { generateTokens, verifyRefreshToken } from '../utils/jwt';
 import { AppError } from '../middlewares/error.middleware';

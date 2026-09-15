@@ -1,11 +1,11 @@
-import { BookingStatus, UserRole, PaymentStatus, WorkerStatus } from '@nearwork/types';
-import { HTTP_STATUS, ERROR_CODES, APP_CONFIG } from '@nearwork/config';
+import { BookingStatus, UserRole, PaymentStatus, WorkerStatus } from '../../packages/types/src/index';
+import { HTTP_STATUS, ERROR_CODES, APP_CONFIG } from '../../packages/config/src/index';
 import { prisma } from '../config/db';
 import { AppError } from '../middlewares/error.middleware';
 import { generateServiceOtp, generateBookingNumber, generateInvoiceNumber } from '../utils/otp';
 import { isWithinGeofence } from '../utils/haversine';
 import { getSocketIO } from '../config/socket';
-import { SOCKET_EVENTS } from '@nearwork/types';
+import { SOCKET_EVENTS } from '../../packages/types/src/index';
 import { MatchingService } from './matching.service';
 
 export class BookingService {

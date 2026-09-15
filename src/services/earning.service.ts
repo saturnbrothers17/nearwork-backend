@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import { PayoutStatus } from '@nearwork/types';
-import { HTTP_STATUS } from '@nearwork/config';
+import { PayoutStatus } from '../../packages/types/src/index';
+import { HTTP_STATUS } from '../../packages/config/src/index';
 import { prisma } from '../config/db';
 import { AppError } from '../middlewares/error.middleware';
 

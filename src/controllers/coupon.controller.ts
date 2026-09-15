@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/db';
-import { HTTP_STATUS } from '@nearwork/config';
+import { HTTP_STATUS } from '../../packages/config/src/index';
 
 export class CouponController {
   /**

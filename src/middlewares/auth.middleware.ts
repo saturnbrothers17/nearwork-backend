@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { HTTP_STATUS, ERROR_CODES } from '@nearwork/config';
-import { JwtPayload, UserRole } from '@nearwork/types';
+import { HTTP_STATUS, ERROR_CODES } from '../../packages/config/src/index';
+import { JwtPayload, UserRole } from '../../packages/types/src/index';
 import { verifyAccessToken } from '../utils/jwt';
 import { prisma } from '../config/db';
 

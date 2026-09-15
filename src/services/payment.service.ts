@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import { PaymentStatus, BookingStatus } from '@nearwork/types';
-import { HTTP_STATUS, ERROR_CODES } from '@nearwork/config';
+import { PaymentStatus, BookingStatus } from '../../packages/types/src/index';
+import { HTTP_STATUS, ERROR_CODES } from '../../packages/config/src/index';
 import { ENV } from '../config/environment';
 import { prisma } from '../config/db';
 import { AppError } from '../middlewares/error.middleware';

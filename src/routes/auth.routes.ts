@@ -7,7 +7,7 @@ import {
   registerWorkerSchema,
   loginSchema,
   refreshTokenSchema
-} from '@nearwork/validation';
+} from '../../packages/validation/src/index';
 
 const router = Router();
 

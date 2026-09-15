@@ -4,7 +4,7 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -12,5 +12,5 @@
     "resolveJsonModule": true,
     "allowJs": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "packages/**/*"]
 }

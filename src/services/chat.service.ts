@@ -1,8 +1,8 @@
 import { prisma } from '../config/db';
 import { getSocketIO } from '../config/socket';
-import { SOCKET_EVENTS } from '@nearwork/types';
+import { SOCKET_EVENTS } from '../../packages/types/src/index';
 import { AppError } from '../middlewares/error.middleware';
-import { HTTP_STATUS } from '@nearwork/config';
+import { HTTP_STATUS } from '../../packages/config/src/index';
 
 export class ChatService {
   /**

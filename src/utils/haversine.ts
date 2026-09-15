@@ -1,4 +1,4 @@
-import { APP_CONFIG } from '@nearwork/config';
+import { APP_CONFIG } from '../../packages/config/src/index';
 
 /**
  * Calculates great-circle distance between two geographic coordinates in kilometers (Haversine formula).

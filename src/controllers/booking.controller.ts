@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { HTTP_STATUS } from '@nearwork/config';
+import { HTTP_STATUS } from '../../packages/config/src/index';
 import { BookingService } from '../services/booking.service';
 import { prisma } from '../config/db';
 

@@ -3,7 +3,7 @@ import { TicketController } from '../controllers/ticket.controller';
 import { authenticateJwt } from '../middlewares/auth.middleware';
 import { requireAdmin } from '../middlewares/role.middleware';
 import { validateRequest } from '../middlewares/validate.middleware';
-import { createTicketSchema } from '@nearwork/validation';
+import { createTicketSchema } from '../../packages/validation/src/index';
 
 const router = Router();
 

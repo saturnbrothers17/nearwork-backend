@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserRole } from '@nearwork/types';
-import { HTTP_STATUS, ERROR_CODES } from '@nearwork/config';
+import { UserRole } from '../../packages/types/src/index';
+import { HTTP_STATUS, ERROR_CODES } from '../../packages/config/src/index';
 
 export const requireRole = (allowedRoles: UserRole | UserRole[]) => {
   const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];

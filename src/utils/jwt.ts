@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { JwtPayload, UserRole } from '@nearwork/types';
+import { JwtPayload, UserRole } from '../../packages/types/src/index';
 import { ENV } from '../config/environment';
 
 export const generateTokens = (payload: {

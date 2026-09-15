@@ -8,7 +8,7 @@ import {
   verifyOtpSchema,
   requestExtraChargeSchema,
   respondExtraChargeSchema
-} from '@nearwork/validation';
+} from '../../packages/validation/src/index';
 
 const router = Router();
 

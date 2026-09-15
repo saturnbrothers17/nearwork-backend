@@ -3,7 +3,7 @@ import { WorkerController } from '../controllers/worker.controller';
 import { authenticateJwt } from '../middlewares/auth.middleware';
 import { requireWorker } from '../middlewares/role.middleware';
 import { validateRequest } from '../middlewares/validate.middleware';
-import { updateWorkerStatusSchema, updateLocationSchema } from '@nearwork/validation';
+import { updateWorkerStatusSchema, updateLocationSchema } from '../../packages/validation/src/index';
 
 const router = Router();
 

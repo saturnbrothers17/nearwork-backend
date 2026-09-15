@@ -1,7 +1,7 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { verifyAccessToken } from '../utils/jwt';
-import { SOCKET_EVENTS } from '@nearwork/types';
+import { SOCKET_EVENTS } from '../../packages/types/src/index';
 
 let ioInstance: SocketIOServer | null = null;
 
