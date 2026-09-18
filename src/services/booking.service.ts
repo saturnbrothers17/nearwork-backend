@@ -386,8 +386,8 @@ export class BookingService {
     const { withinGeofence, distanceMeters } = isWithinGeofence(
       workerLat,
       workerLng,
-      booking.validAddress.latitude,
-      booking.validAddress.longitude
+      booking.address.latitude,
+      booking.address.longitude
     );
 
     if (!withinGeofence) {
@@ -840,4 +840,5 @@ export class BookingService {
     return updated;
   }
 }
+
 
