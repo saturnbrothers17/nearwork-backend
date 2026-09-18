@@ -57,7 +57,10 @@ export const createBookingSchema = z.object({
   scheduledTimeSlot: z.string().min(1, 'Time slot is required (e.g., 10:00 AM)'),
   instructions: z.string().optional(),
   problemPhotos: z.array(z.string()).optional(),
-  couponCode: z.string().optional()
+  couponCode: z.string().optional(),
+  paymentMethod: z.string().optional(),
+  paymentMode: z.string().optional(),
+  autoDispatch: z.boolean().optional()
 });
 
 // Worker Status Schema
