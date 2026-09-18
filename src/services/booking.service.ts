@@ -97,7 +97,7 @@ export class BookingService {
           bookingNumber,
           customerId,
           serviceId: service.id,
-          addressId: address.id,
+          addressId: validAddress.id,
           status: initialStatus,
           scheduledDate: data.scheduledDate,
           scheduledTimeSlot: data.scheduledTimeSlot,
@@ -386,8 +386,8 @@ export class BookingService {
     const { withinGeofence, distanceMeters } = isWithinGeofence(
       workerLat,
       workerLng,
-      booking.address.latitude,
-      booking.address.longitude
+      booking.validAddress.latitude,
+      booking.validAddress.longitude
     );
 
     if (!withinGeofence) {
@@ -840,3 +840,4 @@ export class BookingService {
     return updated;
   }
 }
+
