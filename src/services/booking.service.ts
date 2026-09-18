@@ -50,7 +50,14 @@ export class BookingService {
       throw err;
     }
 
-    if (!address) {
+    let validAddress = address;
+    if (!validAddress) {
+      validAddress = await prisma.address.findFirst({
+        where: { userId: customerId }
+      });
+    }
+
+    if (!validAddress) {
       const err: AppError = new Error('Invalid address selected');
       err.statusCode = HTTP_STATUS.NOT_FOUND;
       err.code = ERROR_CODES.VALIDATION_ERROR;
@@ -840,5 +847,6 @@ export class BookingService {
     return updated;
   }
 }
+
 
 
