@@ -6,14 +6,14 @@ export const registerCustomerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
   phone: z.string().min(10, 'Phone must be at least 10 digits').max(15),
-  password: z.string().min(6, 'Password must be at least 6 characters')
+  password: z.string().min(1, 'Password is required')
 });
 
 export const registerWorkerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
   phone: z.string().min(10, 'Phone must be at least 10 digits').max(15),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(1, 'Password is required'),
   categoryIds: z.array(z.string()).min(1, 'Select at least one service category'),
   experienceYears: z.number().min(0).default(1),
   workingRadiusKm: z.number().min(1).max(50).default(15),
